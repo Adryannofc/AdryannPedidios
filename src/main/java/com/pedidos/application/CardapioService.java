@@ -43,6 +43,15 @@ public class CardapioService {
         return false;
     }
 
+    public Prato buscarPrato(int id) {
+        for (Prato prato : cardapio) {
+            if(prato.getId() == id) {
+                return prato;
+            }
+        }
+        return null;
+    }
+
     public List<Prato> getCardapio() {
         return cardapio;
     }

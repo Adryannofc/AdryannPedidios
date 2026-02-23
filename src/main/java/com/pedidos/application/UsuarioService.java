@@ -13,7 +13,7 @@ public class UsuarioService {
     public UsuarioService() {
         usuariosCadastrados = new ArrayList<>();
         usuariosCadastrados.add(new Cliente("adryann", "adryann@gmail.com", "1234"));
-        usuariosCadastrados.add(new Restaurante("burger", "burger@gmail.com", "4321"));
+        usuariosCadastrados.add(new Restaurante("burger", "burger@gmail.com", "4321", "123123123"));
     }
 
     public Usuario fazerLogin(String email, String senha) {

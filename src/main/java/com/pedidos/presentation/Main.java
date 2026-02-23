@@ -6,10 +6,11 @@ import com.pedidos.domain.Cliente;
 import com.pedidos.domain.Restaurante;
 import com.pedidos.application.UsuarioService;
 
+import java.sql.SQLOutput;
 import java.util.Scanner;
 
 public class Main {
-    private static Scanner scan =  new Scanner(System.in);
+    private static Scanner scan = new Scanner(System.in);
     private static UsuarioService service = new UsuarioService();
 
     public static void main(String[] args) {
@@ -31,7 +32,7 @@ public class Main {
 
         Usuario user = service.fazerLogin(email, senha);
 
-        if(user == null) {
+        if (user == null) {
             System.out.println("❌ Credenciais inválidas!");
             return telaLogin();
         } else {
@@ -61,7 +62,11 @@ public class Main {
                 case 2:
                     System.out.println("Exibindo Pedidos Recebidos");
                     break;
-                case 0: redirecionarMenu(telaLogin());
+                case 9:
+                    telaConfiguracoes(restaurante);
+                    break;
+                case 0:
+                    redirecionarMenu(telaLogin());
                     break;
             }
         } while (opcao != 0);
@@ -78,14 +83,16 @@ public class Main {
             System.out.println("║  ID  │  NOME               │  DESCRIÇÃO                        │  PREÇO      ║");
             System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
 
-            for(Prato prato : restaurante.getCardapioService().getCardapio()) {
+            for (Prato prato : restaurante.getCardapioService().getCardapio()) {
                 String descricaoResumida = prato.getDescricao().length() > 33 ? prato.getDescricao().substring(0, 30) + "..." : prato.getDescricao();
-                System.out.printf("║  %-3d │  %-19s │  %-33s │  R$%-6.2f ║%n", prato.getId(), prato.getNome(), descricaoResumida, prato.getPreco());
+                System.out.printf("║  %-3d │  %-18s │  %-33s │  R$%-6.2f  ║%n", prato.getId(), prato.getNome(), descricaoResumida, prato.getPreco());
             }
             System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
             System.out.println("║  [1] Adicionar   [2] Remover   [3] Editar   [0] Voltar                       ║");
             System.out.println("╚══════════════════════════════════════════════════════════════════════════════╝");
-            opcao = scan.nextInt();;
+            System.out.print("- Opcão: ");
+            opcao = scan.nextInt();
+            ;
             scan.nextLine();
 
             switch (opcao) {
@@ -106,13 +113,87 @@ public class Main {
                     System.out.print("Digite o ID do prato a ser removido: ");
                     int idRemover = scan.nextInt();
                     scan.nextLine();
-
                     restaurante.getCardapioService().removerPrato(idRemover);
                     break;
-                case 0: menuRestaurante(restaurante);
+                case 3:
+                    System.out.println("Digite o ID do prato a ser editado: ");
+                    int idEditado = scan.nextInt();
+                    scan.nextLine();
+
+                    Prato pratoEditar = restaurante.getCardapioService().buscarPrato(idEditado);
+
+                    if (pratoEditar == null) {
+                        System.out.println("❌ Prato não encontrado!");
+                        break;
+                    }
+
+                    System.out.printf("Deseja MUDAR com o nome '%s'? (s/n): ", pratoEditar.getNome());
+                    String novoNome = pratoEditar.getNome();
+                    if (scan.nextLine().equalsIgnoreCase("s")) {
+                        System.out.print("Novo nome: ");
+                        novoNome = scan.nextLine();
+                    }
+
+                    System.out.printf("Deseja MUDAR com o descricao '%s'? (s/n):", pratoEditar.getDescricao());
+                    String novoDescricao = pratoEditar.getDescricao();
+                    if (scan.nextLine().equalsIgnoreCase("s")) {
+                        System.out.print("Novo descricao: ");
+                        novoDescricao = scan.nextLine();
+                    }
+
+                    System.out.printf("Deseja MUDAR com o preco '%.2f?' (s/n): ", pratoEditar.getPreco());
+                    double novoPreco = pratoEditar.getPreco();
+                    if (scan.nextLine().equalsIgnoreCase("s")) {
+                        System.out.print("Novo preco: ");
+                        novoPreco = scan.nextDouble();
+                    }
+
+                    restaurante.getCardapioService().editarPrato(idEditado, novoNome, novoDescricao, novoPreco);
+                    break;
+                case 0:
+                    menuRestaurante(restaurante);
                     break;
             }
 
+        } while (opcao != 0);
+    }
+
+    static void telaConfiguracoes(Restaurante restaurante) {
+        int opcao;
+        do {
+            limparTela();
+            System.out.println("╔══════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                            CONFIGURAÇÕES                                     ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
+            System.out.printf("║  Nome:   %-68s║%n", restaurante.getNome());
+            System.out.printf("║  E-mail: %-68s║%n", restaurante.getEmail());
+            System.out.printf("║  CNPJ:   %-68s║%n", restaurante.getCnpj());
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
+            System.out.println("║  [1] Alterar Nome                                                            ║");
+            System.out.println("║  [2] Alterar E-mail                                                          ║");
+            System.out.println("║  [3] Alterar Senha                                                           ║");
+            System.out.println("║  [0] Voltar                                                                  ║");
+            System.out.println("╚══════════════════════════════════════════════════════════════════════════════╝");
+            System.out.print("- Opção: ");
+            opcao = scan.nextInt();
+            scan.nextLine();
+
+            switch (opcao) {
+                case 1:
+                    System.out.print("Novo nome: ");
+                    String novoNome = scan.nextLine();
+                    restaurante.setNome(novoNome);
+                    break;
+                case 2:
+                    System.out.print("Novo E-mail:");
+                    String novoEmail = scan.nextLine();
+                    restaurante.setEmail(novoEmail);
+                    break;
+                case 3:
+                    System.out.print("Novo Senha:");
+                    String novoSenha = scan.nextLine();
+                    restaurante.setSenha(novoSenha);
+            }
         } while (opcao != 0);
     }
 
@@ -135,7 +216,8 @@ public class Main {
                 case 2:
                     System.out.println("Exibindo Cliente");
                     break;
-                case 0: redirecionarMenu(telaLogin());
+                case 0:
+                    redirecionarMenu(telaLogin());
                     break;
             }
         } while (opcao != 0);
@@ -143,12 +225,12 @@ public class Main {
     }
 
     static void redirecionarMenu(Usuario usuario) {
-        if(usuario == null) {
+        if (usuario == null) {
             System.out.println("Saindo do sistema...");
             return;
         }
 
-        if(usuario instanceof Restaurante r) {
+        if (usuario instanceof Restaurante r) {
             menuRestaurante(r);
         } else if (usuario instanceof Cliente) {
             menuCliente();
@@ -156,7 +238,7 @@ public class Main {
     }
 
     static void limparTela() {
-        for(int i = 0; i < 20; i++){
+        for (int i = 0; i < 20; i++) {
             System.out.println("");
         }
     }
