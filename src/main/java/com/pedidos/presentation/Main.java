@@ -1,5 +1,6 @@
 package com.pedidos.presentation;
 
+import com.pedidos.domain.Prato;
 import com.pedidos.domain.Usuario;
 import com.pedidos.domain.Cliente;
 import com.pedidos.domain.Restaurante;
@@ -14,23 +15,14 @@ public class Main {
     public static void main(String[] args) {
         Usuario usuarioLogado = telaLogin();
 
-        // instanceof: Esse objeto foi criado a partir dessa classe? se sim abre o menu respectivo
-        if(usuarioLogado != null) {
-            if(usuarioLogado instanceof Restaurante) {
-                menuRestaurante();
-            } else if (usuarioLogado instanceof Cliente) {
-                menuCliente();
-            }
-        } else {
-            System.out.println("Saindo do sistema...");
-        }
+        redirecionarMenu(usuarioLogado);
     }
 
     static Usuario telaLogin() {
         limparTela();
-        System.out.println("╔══════════════════════════════════════════╗");
-        System.out.println("║                   LOGIN                  ║");
-        System.out.println("╚══════════════════════════════════════════╝");
+        System.out.println("╔══════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                                    LOGIN                                     ║");
+        System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
         System.out.print("E-MAIL: ");
         String email = scan.nextLine();
 
@@ -41,29 +33,96 @@ public class Main {
 
         if(user == null) {
             System.out.println("❌ Credenciais inválidas!");
+            return telaLogin();
         } else {
             System.out.printf("Login realizado com sucesso! %s\n", user.getNome());
         }
         return user;
     }
 
-    static void menuRestaurante() {
+    static void menuRestaurante(Restaurante restaurante) {
         limparTela();
-        System.out.println("╔══════════════════════════════════════════╗");
-        System.out.println("║              MENU RESTAURANTE            ║");
-        System.out.println("╚══════════════════════════════════════════╝");
-        System.out.println("[1] Gerenciar Cardápio");
-        System.out.println("[2] Exibir Pedidos Recebidos");
-        System.out.println("[9] Configuracoes");
-        System.out.println("[0] Sair");
+        int opcao;
+        do {
+            System.out.println("╔══════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                              MENU RESTAURANTE                                ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
+            System.out.println("[1] Gerenciar Cardápio");
+            System.out.println("[2] Exibir Pedidos Recebidos");
+            System.out.println("[9] Configuracoes");
+            System.out.println("[0] Sair");
+            opcao = scan.nextInt();
+            scan.nextLine();
+
+            switch (opcao) {
+                case 1:
+                    telaCardapio(restaurante);
+                    break;
+                case 2:
+                    System.out.println("Exibindo Pedidos Recebidos");
+                    break;
+                case 0: redirecionarMenu(telaLogin());
+                    break;
+            }
+        } while (opcao != 0);
+
+    }
+
+    static void telaCardapio(Restaurante restaurante) {
+        int opcao;
+        do {
+            limparTela();
+            System.out.println("╔══════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                            GERENCIAR CARDÁPIO                                ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
+            System.out.println("║  ID  │  NOME               │  DESCRIÇÃO                        │  PREÇO      ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
+
+            for(Prato prato : restaurante.getCardapioService().getCardapio()) {
+                String descricaoResumida = prato.getDescricao().length() > 33 ? prato.getDescricao().substring(0, 30) + "..." : prato.getDescricao();
+                System.out.printf("║  %-3d │  %-19s │  %-33s │  R$%-6.2f ║%n", prato.getId(), prato.getNome(), descricaoResumida, prato.getPreco());
+            }
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
+            System.out.println("║  [1] Adicionar   [2] Remover   [3] Editar   [0] Voltar                       ║");
+            System.out.println("╚══════════════════════════════════════════════════════════════════════════════╝");
+            opcao = scan.nextInt();;
+            scan.nextLine();
+
+            switch (opcao) {
+                case 1:
+                    System.out.print("Nome do prato: ");
+                    String nome = scan.nextLine();
+
+                    System.out.print("Descrição do prato: ");
+                    String descricao = scan.nextLine();
+
+                    System.out.print("Preço do prato: ");
+                    double preco = scan.nextDouble();
+                    scan.nextLine();
+
+                    restaurante.getCardapioService().adicionarPrato(nome, descricao, preco);
+                    break;
+                case 2:
+                    System.out.print("Digite o ID do prato a ser removido: ");
+                    int idRemover = scan.nextInt();
+                    scan.nextLine();
+
+                    restaurante.getCardapioService().removerPrato(idRemover);
+                    break;
+                case 0: menuRestaurante(restaurante);
+                    break;
+            }
+
+        } while (opcao != 0);
     }
 
     static void menuCliente() {
         int opcao;
         do {
-            System.out.println("╔══════════════════════════════════════════╗");
-            System.out.println("║                MENU CLIENTE              ║");
-            System.out.println("╚══════════════════════════════════════════╝");
+            limparTela();
+            System.out.println("╔══════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                                MENU CLIENTE                                  ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════╣");
             System.out.println("[1] Exibir Restaurantes");
             System.out.println("[9] Configuracoes");
             System.out.println("[0] Voltar");
@@ -76,11 +135,24 @@ public class Main {
                 case 2:
                     System.out.println("Exibindo Cliente");
                     break;
-                case 0: telaLogin();
+                case 0: redirecionarMenu(telaLogin());
                     break;
             }
         } while (opcao != 0);
 
+    }
+
+    static void redirecionarMenu(Usuario usuario) {
+        if(usuario == null) {
+            System.out.println("Saindo do sistema...");
+            return;
+        }
+
+        if(usuario instanceof Restaurante r) {
+            menuRestaurante(r);
+        } else if (usuario instanceof Cliente) {
+            menuCliente();
+        }
     }
 
     static void limparTela() {
