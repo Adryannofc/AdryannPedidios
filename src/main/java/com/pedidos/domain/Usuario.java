@@ -5,7 +5,7 @@ public abstract class Usuario {
     private String senha;
     private String nome;
 
-    public Usuario(String email, String senha, String nome) {
+    public Usuario(String nome, String email, String senha) {
         this.email = email;
         this.senha = senha;
         this.nome = nome;
