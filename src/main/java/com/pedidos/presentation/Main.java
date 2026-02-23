@@ -27,6 +27,7 @@ public class Main {
     }
 
     static Usuario telaLogin() {
+        limparTela();
         System.out.println("╔══════════════════════════════════════════╗");
         System.out.println("║                   LOGIN                  ║");
         System.out.println("╚══════════════════════════════════════════╝");
@@ -40,11 +41,14 @@ public class Main {
 
         if(user == null) {
             System.out.println("❌ Credenciais inválidas!");
+        } else {
+            System.out.printf("Login realizado com sucesso! %s\n", user.getNome());
         }
         return user;
     }
 
     static void menuRestaurante() {
+        limparTela();
         System.out.println("╔══════════════════════════════════════════╗");
         System.out.println("║              MENU RESTAURANTE            ║");
         System.out.println("╚══════════════════════════════════════════╝");
@@ -55,12 +59,28 @@ public class Main {
     }
 
     static void menuCliente() {
-        System.out.println("╔══════════════════════════════════════════╗");
-        System.out.println("║                MENU CLIENTE              ║");
-        System.out.println("╚══════════════════════════════════════════╝");
-        System.out.println("[1] Exibir Restaurantes");
-        System.out.println("[9] Configuracoes");
-        System.out.println("[0] Sair");
+        int opcao;
+        do {
+            System.out.println("╔══════════════════════════════════════════╗");
+            System.out.println("║                MENU CLIENTE              ║");
+            System.out.println("╚══════════════════════════════════════════╝");
+            System.out.println("[1] Exibir Restaurantes");
+            System.out.println("[9] Configuracoes");
+            System.out.println("[0] Voltar");
+            opcao = scan.nextInt();
+            scan.nextLine();
+            switch (opcao) {
+                case 1:
+                    System.out.println("Exibindo Restaurante");
+                    break;
+                case 2:
+                    System.out.println("Exibindo Cliente");
+                    break;
+                case 0: telaLogin();
+                    break;
+            }
+        } while (opcao != 0);
+
     }
 
     static void limparTela() {
